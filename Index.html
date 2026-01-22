@@ -8,44 +8,72 @@
         :root { --bg: #000; --yellow: #fbc02d; --gray: #1a1a1a; --green: #2ecc71; --red: #e74c3c; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
         
-        .logo { color: var(--yellow); font-size: 28px; font-weight: 900; margin: 20px 0; letter-spacing: -1px; text-transform: uppercase; }
+        /* Stats & Mode Toggle */
+        .stats-bar { display: flex; gap: 20px; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: var(--yellow); }
+        .mode-toggle { margin-bottom: 20px; display: flex; gap: 10px; }
+        .mode-btn { background: #222; border: 1px solid #444; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; }
+        .mode-btn.active { background: var(--yellow); color: black; border-color: var(--yellow); }
+
+        .logo { color: var(--yellow); font-size: 28px; font-weight: 900; margin: 10px 0; letter-spacing: -1px; text-transform: uppercase; }
         
-        /* Search Box */
+        .timer-container { width: 100%; max-width: 400px; height: 6px; background: #333; border-radius: 3px; margin-bottom: 20px; overflow: hidden; display: none; }
+        #timer-fill { height: 100%; width: 100%; background: var(--yellow); transition: width 0.1s linear; }
+
         .search-container { width: 100%; max-width: 400px; position: relative; z-index: 100; }
-        input { width: 100%; padding: 15px; border-radius: 30px; border: 1px solid #333; background: var(--gray); color: white; outline: none; box-sizing: border-box; font-size: 16px; }
-        #artistList { position: absolute; top: 100%; left: 0; right: 0; background: #222; border-radius: 15px; margin-top: 10px; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .artist-option { padding: 12px 20px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .artist-option:hover { background: #333; }
+        input { width: 100%; padding: 15px; border-radius: 30px; border: 1px solid #333; background: var(--gray); color: white; outline: none; box-sizing: border-box; }
+        #artistList { position: absolute; top: 100%; left: 0; right: 0; background: #222; border-radius: 15px; margin-top: 10px; max-height: 200px; overflow-y: auto; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .artist-option { padding: 12px 20px; border-bottom: 1px solid #333; cursor: pointer; }
 
-        /* Game UI */
-        #game { display: none; width: 100%; max-width: 500px; text-align: center; margin-top: 30px; }
-        .funny-phrase { font-size: 38px; font-weight: 900; margin: 0; text-transform: uppercase; line-height: 1.1; }
-        .sub { color: var(--yellow); margin: 15px 0 35px 0; font-weight: 600; font-size: 14px; }
+        #game { display: none; width: 100%; max-width: 500px; text-align: center; }
+        .funny-phrase { font-size: 32px; font-weight: 900; margin: 0; text-transform: uppercase; }
         
-        /* Player Icon */
-        .player-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 40px; }
-        #playBtn { background: none; border: none; cursor: pointer; padding: 0; }
-        #playBtn svg { width: 65px; height: 65px; fill: var(--yellow); }
-        .bars { display: flex; gap: 4px; height: 35px; align-items: center; }
-        .bar { width: 4px; height: 12px; background: #333; border-radius: 2px; }
+        /* Lyrics Display Box */
+        #lyrics-display { 
+            background: #111; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 25px 0; 
+            min-height: 80px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-style: italic;
+            font-size: 18px;
+            border-left: 4px solid var(--yellow);
+        }
 
-        /* Choice Grid */
+        .player-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 30px 0; }
+        #playBtn { background: none; border: none; cursor: pointer; }
+        #playBtn svg { width: 60px; height: 60px; fill: var(--yellow); }
+
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .card { cursor: pointer; transition: 0.2s; }
+        .card { cursor: pointer; transition: 0.2s; text-align: center; }
         .card img { width: 100%; aspect-ratio: 1/1; border-radius: 15px; object-fit: cover; border: 3px solid transparent; }
-        .card p { font-size: 12px; margin-top: 10px; color: #fff; font-weight: 500; }
+        .card p { font-size: 12px; margin-top: 8px; font-weight: 500; color: #bbb; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
-        /* Status States */
         .correct img { border-color: var(--green) !important; }
         .wrong img { border-color: var(--red) !important; opacity: 0.4; }
         .reveal img { border-color: var(--green) !important; opacity: 1; }
-        
-        #msg { height: 40px; margin-top: 25px; font-weight: 800; font-size: 20px; text-transform: uppercase; }
+        #msg { height: 40px; margin-top: 20px; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="logo">MZEKNI</div>
+
+    <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-sound" onclick="setMode('sound')">SOUND MODE</button>
+        <button class="mode-btn" id="btn-lyrics" onclick="setMode('lyrics')">LYRICS MODE</button>
+    </div>
+
+    <div class="stats-bar">
+        <span>🔥 STREAK: <span id="streak">0</span></span>
+        <span>🏆 BEST: <span id="highscore">0</span></span>
+    </div>
+
+    <div class="timer-container" id="timerBox">
+        <div id="timer-fill"></div>
+    </div>
 
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search a singer..." oninput="searchArtists()" autocomplete="off">
@@ -53,14 +81,16 @@
     </div>
 
     <div id="game">
-        <h1 class="funny-phrase">GUESS THE SONG, BABY!</h1>
-        <p class="sub">Play the track and pick the right song name</p>
+        <h1 class="funny-phrase">Guess the song, baby!</h1>
+        
+        <div id="audio-ui">
+            <div class="player-row">
+                <button id="playBtn"><svg id="svgIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            </div>
+        </div>
 
-        <div class="player-row">
-            <button id="playBtn">
-                <svg id="svgIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <div class="bars" id="visualizer"></div>
+        <div id="lyrics-ui" style="display: none;">
+            <div id="lyrics-display">Loading lyrics snippet...</div>
         </div>
 
         <div id="grid" class="grid"></div>
@@ -68,36 +98,33 @@
     </div>
 
     <script>
-        let fullSongList = [];
-        let goalTrack = null;
+        let fullSongList = [], goalTrack = null;
+        let streak = 0, highscore = localStorage.getItem('mzekni_hi') || 0;
+        let timerInterval, timeLeft = 15;
+        let gameMode = 'sound'; 
         const audio = new Audio();
 
-        // Visualizer Setup
-        const viz = document.getElementById('visualizer');
-        for(let i=0; i<12; i++) {
-            const b = document.createElement('div');
-            b.className = 'bar';
-            viz.appendChild(b);
+        document.getElementById('highscore').innerText = highscore;
+
+        function setMode(mode) {
+            gameMode = mode;
+            document.getElementById('btn-sound').classList.toggle('active', mode === 'sound');
+            document.getElementById('btn-lyrics').classList.toggle('active', mode === 'lyrics');
+            if(fullSongList.length > 0) loadRound();
         }
 
         async function searchArtists() {
             const term = document.getElementById('searchInput').value;
-            if (term.length < 2) {
-                document.getElementById('artistList').style.display = 'none';
-                return;
-            }
-
-            // Search specifically for music artists to ensure official results
+            if (term.length < 2) return document.getElementById('artistList').style.display = 'none';
             const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=musicArtist&limit=5`);
             const data = await res.json();
             const list = document.getElementById('artistList');
             list.innerHTML = '';
-            
-            data.results.forEach(artist => {
+            data.results.forEach(a => {
                 const div = document.createElement('div');
                 div.className = 'artist-option';
-                div.innerHTML = `${artist.artistName} <span>${artist.primaryGenreName}</span>`;
-                div.onclick = () => selectArtist(artist.artistId);
+                div.innerText = a.artistName;
+                div.onclick = () => selectArtist(a.artistId);
                 list.appendChild(div);
             });
             list.style.display = 'block';
@@ -106,94 +133,98 @@
         async function selectArtist(id) {
             document.getElementById('artistList').style.display = 'none';
             document.getElementById('searchInput').value = "";
-            
-            // Fetch a much larger set of tracks (limit 200) to prevent repeating the same 3 songs
-            const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=200`);
+            const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=150`);
             const data = await res.json();
-            
-            // Filter out non-track items and ensure they have audio previews
-            fullSongList = data.results.filter(item => item.wrapperType === 'track' && item.previewUrl);
-            
-            if (fullSongList.length < 3) {
-                alert("This artist doesn't have enough official previews. Try another!");
-                return;
-            }
-            
+            fullSongList = data.results.filter(i => i.wrapperType === 'track');
             document.getElementById('game').style.display = 'block';
+            document.getElementById('timerBox').style.display = 'block';
             loadRound();
         }
 
-        function loadRound() {
+        async function loadRound() {
+            clearInterval(timerInterval);
+            audio.pause();
             document.getElementById('msg').innerText = '';
             
-            // Shuffle full pool and pick 3 unique tracks
+            // UI Switch
+            document.getElementById('audio-ui').style.display = gameMode === 'sound' ? 'block' : 'none';
+            document.getElementById('lyrics-ui').style.display = gameMode === 'lyrics' ? 'block' : 'none';
+
             const shuffled = [...fullSongList].sort(() => 0.5 - Math.random());
-            const selection = [];
-            const titles = new Set();
-
-            for (let track of shuffled) {
-                if (!titles.has(track.trackName.toLowerCase())) {
-                    selection.push(track);
-                    titles.add(track.trackName.toLowerCase());
-                }
-                if (selection.length === 3) break;
-            }
-
+            const selection = shuffled.slice(0, 3);
             goalTrack = selection[Math.floor(Math.random() * 3)];
-            audio.src = goalTrack.previewUrl;
+            
+            if (gameMode === 'sound') {
+                audio.src = goalTrack.previewUrl;
+            } else {
+                // In a real app, you'd fetch lyrics from an API here.
+                // For this demo, we use a placeholder that matches the song context.
+                document.getElementById('lyrics-display').innerText = `🎵 [Singing the title or chorus of "${goalTrack.trackName}"]...`;
+            }
             
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
-
-            selection.forEach(track => {
+            selection.forEach(t => {
                 const div = document.createElement('div');
                 div.className = 'card';
-                div.id = `t-${track.trackId}`;
-                const highResImg = track.artworkUrl100.replace('100x100', '400x400');
-                div.innerHTML = `<img src="${highResImg}"><p>${track.trackName}</p>`;
-                div.onclick = () => check(track, div);
+                div.id = `t-${t.trackId}`;
+                div.innerHTML = `<img src="${t.artworkUrl100.replace('100x100','400x400')}"><p>${t.trackName}</p>`;
+                div.onclick = () => check(t, div);
                 grid.appendChild(div);
             });
-            
-            setPlaying(false);
+            startTimer();
+            updateIcon(false);
+        }
+
+        function startTimer() {
+            timeLeft = 15;
+            document.getElementById('timer-fill').style.width = '100%';
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('timer-fill').style.width = (timeLeft / 15 * 100) + '%';
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    check(null, null); 
+                }
+            }, 100);
         }
 
         function check(track, el) {
+            clearInterval(timerInterval);
             if (document.getElementById('msg').innerText !== '') return;
 
-            if (track.trackId === goalTrack.trackId) {
-                el.classList.add('correct');
-                document.getElementById('msg').innerText = "Correct, Baby!";
+            if (track && track.trackId === goalTrack.trackId) {
+                if(el) el.classList.add('correct');
+                streak++;
+                document.getElementById('msg').innerText = "Correct, Baby! 🔥";
                 document.getElementById('msg').style.color = "var(--green)";
             } else {
-                el.classList.add('wrong');
+                if(el) el.classList.add('wrong');
                 document.getElementById(`t-${goalTrack.trackId}`).classList.add('reveal');
-                document.getElementById('msg').innerText = `Wrong! It was ${goalTrack.trackName}`;
+                streak = 0;
+                document.getElementById('msg').innerText = timeLeft <= 0 ? "TIME'S UP! ⏰" : "WRONG! ❌";
                 document.getElementById('msg').style.color = "var(--red)";
             }
 
+            if (streak > highscore) {
+                highscore = streak;
+                localStorage.setItem('mzekni_hi', highscore);
+                document.getElementById('highscore').innerText = highscore;
+            }
+            document.getElementById('streak').innerText = streak;
             audio.pause();
-            setPlaying(false);
             setTimeout(loadRound, 2500);
         }
 
-        function setPlaying(isPlaying) {
-            const icon = document.getElementById('svgIcon');
-            icon.innerHTML = isPlaying 
-                ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' 
-                : '<path d="M8 5v14l11-7z"/>';
-            document.querySelectorAll('.bar').forEach(b => {
-                b.style.height = isPlaying ? (Math.random()*25+5)+'px' : '12px';
-                b.style.background = isPlaying ? 'var(--yellow)' : '#333';
-            });
+        function updateIcon(p) {
+            document.getElementById('svgIcon').innerHTML = p ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
         }
 
         document.getElementById('playBtn').onclick = () => {
-            if (audio.paused) { audio.play(); setPlaying(true); } 
-            else { audio.pause(); setPlaying(false); }
+            if (audio.paused) { audio.play(); updateIcon(true); } 
+            else { audio.pause(); updateIcon(false); }
         };
-
-        audio.onended = () => setPlaying(false);
+        audio.onended = () => updateIcon(false);
     </script>
 </body>
 </html>
