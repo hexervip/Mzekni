@@ -16,48 +16,28 @@
         .timer-bar { width: 100%; height: 6px; background: #333; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
         #timer-fill { height: 100%; width: 100%; background: var(--yellow); transition: width 0.1s linear; }
 
-        /* Search Section */
+        /* Enhanced Search Section */
         .search-container { width: 100%; max-width: 400px; position: relative; margin-top: 10px; }
         input { width: 100%; padding: 15px 20px; border-radius: 30px; border: 1px solid #333; background: #1a1a1a; color: white; outline: none; box-sizing: border-box; }
         #artistList { position: absolute; width: 100%; background: #111; border-radius: 15px; margin-top: 10px; z-index: 100; border: 1px solid #333; display: none; overflow: hidden; }
-        .artist-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #222; cursor: pointer; gap: 12px; }
-        .artist-item img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-
-        /* THE FIXED GRID */
-        #game-area { display: none; width: 100%; max-width: 450px; text-align: center; }
-        .song-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 12px; 
-            width: 100%;
-            align-items: start; /* Keeps everything aligned at the top */
-        }
-
-        .song-card { cursor: pointer; width: 100%; }
         
-        /* Forces every image to be the exact same square size */
-        .song-card img { 
-            width: 100%; 
-            aspect-ratio: 1/1; 
-            object-fit: cover; 
-            border-radius: 12px; 
-            border: 4px solid transparent; 
-            display: block; /* Removes bottom gap */
-            box-sizing: border-box;
-        }
+        /* New Information Columns for Search */
+        .artist-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #222; cursor: pointer; gap: 15px; background: #111; }
+        .artist-item img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
+        .info-col { display: flex; flex-direction: column; flex-grow: 1; }
+        .artist-name { font-weight: bold; font-size: 16px; color: white; }
+        .artist-genre { font-size: 11px; color: var(--yellow); text-transform: uppercase; font-weight: 800; }
+        .view-link { font-size: 10px; color: #555; text-decoration: underline; margin-top: 2px; }
 
-        /* Song titles - fixed height so long names don't break the grid */
+        /* FIXED GRID - Same Size Images */
+        #game-area { display: none; width: 100%; max-width: 450px; text-align: center; }
+        .song-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; align-items: start; }
+        .song-card { cursor: pointer; width: 100%; }
+        .song-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 4px solid transparent; display: block; box-sizing: border-box; }
+        
         .song-card p { 
-            font-size: 11px; 
-            margin-top: 8px; 
-            color: #aaa; 
-            font-weight: 700; 
-            height: 2.4em; /* Allows 2 lines of text max */
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            line-height: 1.2em;
+            font-size: 11px; margin-top: 8px; color: #aaa; font-weight: 700; height: 2.4em; 
+            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2em; 
         }
         
         .correct img { border-color: var(--green) !important; }
@@ -87,7 +67,7 @@
     </div>
 
     <div class="search-container" id="sCont">
-        <input type="text" id="aInp" placeholder="Search singer..." oninput="getArtists()">
+        <input type="text" id="aInp" placeholder="Search singer (e.g. Pause)..." oninput="getArtists()">
         <div id="artistList"></div>
     </div>
 
@@ -112,14 +92,24 @@
         async function getArtists() {
             const q = document.getElementById('aInp').value;
             if (q.length < 2) return;
-            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=musicArtist&limit=5`);
+            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=musicArtist&limit=6`);
             const data = await res.json();
             const list = document.getElementById('artistList');
             list.innerHTML = '';
+            
             data.results.forEach(a => {
                 const div = document.createElement('div');
                 div.className = 'artist-item';
-                div.innerHTML = `<img src="https://ui-avatars.com/api/?name=${encodeURIComponent(a.artistName)}&background=333&color=fbc02d"><span style="font-weight:bold;">${a.artistName}</span>`;
+                const pic = `https://ui-avatars.com/api/?name=${encodeURIComponent(a.artistName)}&background=333&color=fbc02d&bold=true`;
+                
+                div.innerHTML = `
+                    <img src="${pic}">
+                    <div class="info-col">
+                        <span class="artist-name">${a.artistName}</span>
+                        <span class="artist-genre">${a.primaryGenreName || 'Musician'}</span>
+                        <span class="view-link">Identify Artist Profile</span>
+                    </div>
+                `;
                 div.onclick = () => loadGame(a.artistId);
                 list.appendChild(div);
             });
