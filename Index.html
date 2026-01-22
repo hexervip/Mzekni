@@ -3,200 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MZEKNI Gold</title>
+    <title>MZEKNI ULTIMATE</title>
     <style>
-        :root { --bg: #0b0b0b; --yellow: #fbc02d; --glass: rgba(255, 255, 255, 0.05); --green: #2ecc71; --red: #e74c3c; }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
+        :root { --bg: #0b0b0b; --yellow: #fbc02d; --green: #2ecc71; --red: #e74c3c; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .logo { color: var(--yellow); font-size: 32px; font-weight: 900; margin-bottom: 20px; }
         
-        .logo { color: var(--yellow); font-size: 32px; font-weight: 900; margin: 15px 0; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px rgba(251, 192, 45, 0.4); }
-        
-        /* Glass UI */
-        .glass-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; width: 100%; max-width: 450px; box-sizing: border-box; margin-bottom: 20px; }
+        /* SEARCH BOX - MUST WORK FIRST */
+        .search-container { width: 100%; max-width: 400px; position: relative; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px; border-radius: 30px; border: 1px solid #444; background: #222; color: white; }
+        #artistList { background: #333; position: absolute; width: 100%; border-radius: 10px; z-index: 10; display: none; }
+        .artist-opt { padding: 10px; border-bottom: 1px solid #444; cursor: pointer; }
 
-        .stats-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; color: var(--yellow); margin-bottom: 10px; }
-        
-        /* Timer */
-        .timer-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        #timer-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--yellow), #ffeb3b); transition: width 0.1s linear; }
-
-        /* Search */
-        #search-section input { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #1a1a1a; color: white; font-size: 16px; outline: none; border: 1px solid #333; }
-        #artistList { background: #1a1a1a; border-radius: 15px; margin-top: 10px; overflow: hidden; display: none; }
-        .artist-option { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; transition: 0.2s; }
-        .artist-option:hover { background: #222; }
-
-        /* Game UI */
+        /* GAME UI - HIDDEN UNTIL SEARCH */
         #game { display: none; width: 100%; max-width: 500px; text-align: center; }
-        .btn-play { background: var(--yellow); border: none; width: 80px; height: 80px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 20px auto; box-shadow: 0 0 20px rgba(251, 192, 45, 0.3); transition: 0.2s; }
-        .btn-play:active { transform: scale(0.9); }
-
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
-        .card { cursor: pointer; position: relative; }
-        .card img { width: 100%; aspect-ratio: 1/1; border-radius: 12px; object-fit: cover; border: 2px solid transparent; transition: 0.3s; }
-        .card p { font-size: 11px; margin-top: 8px; color: #aaa; font-weight: 600; line-height: 1.2; height: 2.4em; overflow: hidden; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .card img { width: 100%; border-radius: 10px; cursor: pointer; border: 3px solid transparent; }
+        .correct img { border-color: var(--green); }
+        .wrong img { border-color: var(--red); opacity: 0.5; }
         
-        .correct img { border-color: var(--green) !important; box-shadow: 0 0 15px var(--green); }
-        .wrong img { border-color: var(--red) !important; opacity: 0.3; }
-        .reveal img { border-color: var(--green) !important; opacity: 1; scale: 1.05; }
-
-        /* Results */
-        #results { display: none; text-align: center; padding: 40px 20px; }
-        .score-circle { width: 120px; height: 120px; border: 6px solid var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; margin: 0 auto 20px; }
-        .whatsapp-btn { background: #25D366; color: white; text-decoration: none; padding: 15px 30px; border-radius: 50px; font-weight: 800; display: inline-block; margin-top: 20px; }
-
-        #msg { height: 30px; margin-top: 15px; font-weight: 900; letter-spacing: 1px; }
+        #lyrics-box { background: #1a1a1a; padding: 20px; border-radius: 10px; margin: 20px 0; display: none; font-style: italic; }
     </style>
 </head>
 <body>
 
     <div class="logo">MZEKNI</div>
 
-    <div id="active-stats" style="display: none; width: 100%; max-width: 450px;">
-        <div class="stats-row">
-            <span>ROUND <span id="round-num">1</span>/10</span>
-            <span id="score-text">🔥 0</span>
-        </div>
-        <div class="timer-bg"><div id="timer-fill"></div></div>
-    </div>
-
-    <div id="search-section" class="glass-card" style="margin-top: 20px;">
-        <input type="text" id="searchInput" placeholder="Enter artist name..." oninput="searchArtists()">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Type artist name (e.g. Drake)..." oninput="search()">
         <div id="artistList"></div>
     </div>
 
     <div id="game">
-        <button id="playBtn" class="btn-play">
-            <svg id="svgIcon" width="40" height="40" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div id="grid" class="grid"></div>
-        <div id="msg"></div>
-    </div>
+        <div id="round-info">Round 1/10 | Score: 0</div>
+        
+        <div id="audio-ui">
+            <button onclick="toggleAudio()" style="background:var(--yellow); padding:15px; border-radius:50%; border:none; cursor:pointer;">▶ PLAY PREVIEW</button>
+        </div>
 
-    <div id="results" class="glass-card">
-        <h2>Challenge Over!</h2>
-        <div class="score-circle" id="final-score">0/10</div>
-        <h3 id="rank-name">Casual Fan</h3>
-        <a href="#" id="wa-link" class="whatsapp-btn">SHARE ON WHATSAPP</a>
-        <br><br>
-        <button onclick="location.reload()" style="background:none; border:none; color:#888; cursor:pointer; text-decoration:underline;">Try a different singer</button>
+        <div id="lyrics-box">"Snippet of lyrics goes here..."</div>
+
+        <div id="grid" class="grid"></div>
+        <div id="msg" style="margin-top:20px; font-weight:bold;"></div>
     </div>
 
     <script>
-        let tracks = [], goal = null, round = 1, score = 0, artistName = "";
-        let timer, timeLeft = 15;
+        let tracks = [], goal = null, round = 1, score = 0;
         const audio = new Audio();
-        
-        // Sound effects
-        const sfxCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
-        const sfxWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
 
-        async function searchArtists() {
+        async function search() {
             const val = document.getElementById('searchInput').value;
-            if (val.length < 2) return document.getElementById('artistList').style.display='none';
-            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(val)}&entity=musicArtist&limit=5`);
+            if (val.length < 2) return;
+            const res = await fetch(`https://itunes.apple.com/search?term=${val}&entity=musicArtist&limit=5`);
             const data = await res.json();
             const list = document.getElementById('artistList');
             list.innerHTML = '';
             data.results.forEach(a => {
                 const d = document.createElement('div');
-                d.className = 'artist-option';
+                d.className = 'artist-opt';
                 d.innerText = a.artistName;
-                d.onclick = () => startGame(a.artistId, a.artistName);
+                d.onclick = () => start(a.artistId);
                 list.appendChild(d);
             });
             list.style.display = 'block';
         }
 
-        async function startGame(id, name) {
-            artistName = name;
-            document.getElementById('search-section').style.display = 'none';
-            document.getElementById('active-stats').style.display = 'block';
+        async function start(id) {
+            document.getElementById('artistList').style.display = 'none';
             document.getElementById('game').style.display = 'block';
-            const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=100`);
+            const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=50`);
             const data = await res.json();
-            tracks = data.results.filter(t => t.wrapperType === 'track' && t.previewUrl);
+            tracks = data.results.filter(t => t.wrapperType === 'track');
             loadRound();
         }
 
         function loadRound() {
-            if (round > 10) return showResults();
-            clearInterval(timer);
-            document.getElementById('round-num').innerText = round;
+            if (round > 10) return alert(`Game Over! Final Score: ${score}/10`);
             document.getElementById('msg').innerText = '';
-            
             let selection = [...tracks].sort(() => 0.5 - Math.random()).slice(0, 3);
             goal = selection[Math.floor(Math.random() * 3)];
             audio.src = goal.previewUrl;
             
+            // Re-render the grid
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
             selection.forEach(t => {
+                const img = document.createElement('img');
+                img.src = t.artworkUrl100.replace('100x100','300x300');
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.id = `t-${t.trackId}`;
-                card.innerHTML = `<img src="${t.artworkUrl100.replace('100x100','400x400')}"><p>${t.trackName}</p>`;
+                card.appendChild(img);
                 card.onclick = () => check(t, card);
                 grid.appendChild(card);
             });
-            startTimer();
-            updateIcon(false);
-        }
-
-        function startTimer() {
-            timeLeft = 15;
-            document.getElementById('timer-fill').style.width = '100%';
-            timer = setInterval(() => {
-                timeLeft -= 0.1;
-                document.getElementById('timer-fill').style.width = (timeLeft/15*100)+'%';
-                if(timeLeft <= 0) { clearInterval(timer); check(null, null); }
-            }, 100);
         }
 
         function check(t, el) {
-            clearInterval(timer);
-            if(document.getElementById('msg').innerText !== '') return;
-
-            if(t && t.trackId === goal.trackId) {
+            if (t.trackId === goal.trackId) {
                 el.classList.add('correct');
                 score++;
-                sfxCorrect.play();
-                document.getElementById('msg').innerText = "CORRECT! 🔥";
-                document.getElementById('msg').style.color = "var(--green)";
             } else {
-                sfxWrong.play();
-                if(el) el.classList.add('wrong');
-                document.getElementById(`t-${goal.trackId}`).classList.add('reveal');
-                document.getElementById('msg').innerText = "WRONG! ❌";
-                document.getElementById('msg').style.color = "var(--red)";
+                el.classList.add('wrong');
             }
-            document.getElementById('score-text').innerText = `🔥 ${score}`;
-            audio.pause();
             round++;
-            setTimeout(loadRound, 2000);
+            document.getElementById('round-info').innerText = `Round ${round}/10 | Score: ${score}`;
+            setTimeout(loadRound, 1500);
         }
 
-        function showResults() {
-            document.getElementById('game').style.display = 'none';
-            document.getElementById('active-stats').style.display = 'none';
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('final-score').innerText = `${score}/10`;
-            
-            let rank = "Beginner 🎵";
-            if(score >= 9) rank = "Legendary 👑";
-            else if(score >= 7) rank = "Super Fan 🔥";
-            document.getElementById('rank-name').innerText = rank;
-
-            const text = `I just got ${score}/10 on the ${artistName} MZEKNI Challenge! Can you beat my rank: ${rank}?`;
-            document.getElementById('wa-link').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        function toggleAudio() {
+            if (audio.paused) audio.play();
+            else audio.pause();
         }
-
-        function updateIcon(p) {
-            document.getElementById('svgIcon').innerHTML = p ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
-        }
-
-        document.getElementById('playBtn').onclick = () => {
-            if(audio.paused) { audio.play(); updateIcon(true); } else { audio.pause(); updateIcon(false); }
-        };
     </script>
 </body>
 </html>
