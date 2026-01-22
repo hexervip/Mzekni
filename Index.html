@@ -7,38 +7,32 @@
     <style>
         :root { --bg: #000; --yellow: #fbc02d; --green: #2ecc71; --red: #e74c3c; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        
         .logo { color: var(--yellow); font-size: 32px; font-weight: 900; margin: 10px 0; text-transform: uppercase; }
 
-        /* Timer & Stats Area */
+        /* Stats & Header */
         #game-header { display: none; width: 100%; max-width: 400px; flex-direction: column; }
         .stats-row { display: flex; justify-content: space-between; color: var(--yellow); font-weight: 800; margin-bottom: 8px; }
         .timer-bar { width: 100%; height: 6px; background: #333; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
         #timer-fill { height: 100%; width: 100%; background: var(--yellow); transition: width 0.1s linear; }
 
-        /* Enhanced Search Section */
+        /* Search List Fixes */
         .search-container { width: 100%; max-width: 400px; position: relative; margin-top: 10px; }
         input { width: 100%; padding: 15px 20px; border-radius: 30px; border: 1px solid #333; background: #1a1a1a; color: white; outline: none; box-sizing: border-box; }
         #artistList { position: absolute; width: 100%; background: #111; border-radius: 15px; margin-top: 10px; z-index: 100; border: 1px solid #333; display: none; overflow: hidden; }
         
-        /* New Information Columns for Search */
         .artist-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #222; cursor: pointer; gap: 15px; background: #111; }
         .artist-item img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
         .info-col { display: flex; flex-direction: column; flex-grow: 1; }
         .artist-name { font-weight: bold; font-size: 16px; color: white; }
         .artist-genre { font-size: 11px; color: var(--yellow); text-transform: uppercase; font-weight: 800; }
-        .view-link { font-size: 10px; color: #555; text-decoration: underline; margin-top: 2px; }
+        .status-msg { font-size: 10px; color: #555; margin-top: 2px; }
 
-        /* FIXED GRID - Same Size Images */
+        /* Organized Grid */
         #game-area { display: none; width: 100%; max-width: 450px; text-align: center; }
         .song-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; align-items: start; }
         .song-card { cursor: pointer; width: 100%; }
         .song-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 4px solid transparent; display: block; box-sizing: border-box; }
-        
-        .song-card p { 
-            font-size: 11px; margin-top: 8px; color: #aaa; font-weight: 700; height: 2.4em; 
-            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2em; 
-        }
+        .song-card p { font-size: 11px; margin-top: 8px; color: #aaa; font-weight: 700; height: 2.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2em; }
         
         .correct img { border-color: var(--green) !important; }
         .wrong img { border-color: var(--red) !important; opacity: 0.4; }
@@ -48,7 +42,6 @@
         #playBtn svg { width: 70px; height: 70px; fill: var(--yellow); }
         #feedback { height: 25px; margin-top: 10px; font-weight: 900; color: var(--yellow); }
 
-        /* Final Rank */
         #final-screen { display: none; text-align: center; margin-top: 50px; }
         .final-score { font-size: 80px; font-weight: 900; color: var(--yellow); margin: 20px 0; }
         .share-btn { background: #25D366; color: white; padding: 18px 40px; border-radius: 40px; border: none; font-weight: 900; font-size: 18px; cursor: pointer; }
@@ -67,12 +60,12 @@
     </div>
 
     <div class="search-container" id="sCont">
-        <input type="text" id="aInp" placeholder="Search singer (e.g. Pause)..." oninput="getArtists()">
+        <input type="text" id="aInp" placeholder="Search singer..." oninput="getArtists()">
         <div id="artistList"></div>
     </div>
 
     <div id="game-area">
-        <h1 style="font-size: 32px; font-weight: 900; margin: 10px 0;">GUESS THE SONG!</h1>
+        <h1 style="font-size: 28px; font-weight: 900; margin: 10px 0;">GUESS THE SONG!</h1>
         <button id="playBtn"><svg id="pIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
         <div id="grid" class="song-grid"></div>
         <div id="feedback"></div>
@@ -106,23 +99,45 @@
                     <img src="${pic}">
                     <div class="info-col">
                         <span class="artist-name">${a.artistName}</span>
-                        <span class="artist-genre">${a.primaryGenreName || 'Musician'}</span>
-                        <span class="view-link">Identify Artist Profile</span>
+                        <span class="artist-genre">${a.primaryGenreName || 'Artist'}</span>
+                        <span class="status-msg" id="status-${a.artistId}">Checking music...</span>
                     </div>
                 `;
+                // Verify songs exist before allowing click
+                checkSongs(a.artistId);
                 div.onclick = () => loadGame(a.artistId);
                 list.appendChild(div);
             });
             list.style.display = 'block';
         }
 
+        async function checkSongs(id) {
+            const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=5`);
+            const data = await res.json();
+            const playable = data.results.filter(x => x.previewUrl).length;
+            const msg = document.getElementById(`status-${id}`);
+            if (playable > 0) {
+                msg.innerText = "Music available ✅";
+                msg.style.color = "var(--green)";
+            } else {
+                msg.innerText = "No playable music ❌";
+                msg.style.color = "var(--red)";
+            }
+        }
+
         async function loadGame(id) {
-            document.getElementById('sCont').style.display = 'none';
-            document.getElementById('game-header').style.display = 'flex';
-            document.getElementById('game-area').style.display = 'block';
             const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=100`);
             const data = await res.json();
             pool = data.results.filter(x => x.previewUrl);
+            
+            if (pool.length < 3) {
+                alert("This artist doesn't have enough playable songs for a game. Try another one!");
+                return;
+            }
+
+            document.getElementById('sCont').style.display = 'none';
+            document.getElementById('game-header').style.display = 'flex';
+            document.getElementById('game-area').style.display = 'block';
             playRound();
         }
 
@@ -185,7 +200,7 @@
         }
 
         function shareWA() {
-            const url = `https://wa.me/?text=${encodeURIComponent('I got ' + s + '/10 on MZEKNI! Beat me! 🎵 mzekni.netlify.app 🩵')}`;
+const url = `https://wa.me/?text=${encodeURIComponent('I got ' + s + '/10 on MZEKNI! Beat me! 🎵 %0A%0A Play Here: mzekni.netlify.app 🔥')}`;
             window.open(url);
         }
 
