@@ -3,107 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MZEKNI</title>
+    <title>MZEKNI PRO</title>
     <style>
-        :root { --bg: #000; --yellow: #fbc02d; --green: #2ecc71; --red: #e74c3c; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .logo { color: var(--yellow); font-size: 32px; font-weight: 900; margin: 10px 0; text-transform: uppercase; }
+        :root { 
+            --bg: #0b0c10; 
+            --card-bg: #1f2833;
+            --yellow: #fbc02d; 
+            --green: #2ecc71; 
+            --red: #e74c3c; 
+            --text: #c5c6c7;
+        }
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            margin: 0; 
+            user-select: none;
+        }
+        .logo { 
+            color: var(--yellow); 
+            font-size: 38px; 
+            font-weight: 900; 
+            margin: 15px 0; 
+            text-transform: uppercase; 
+            text-shadow: 0 0 10px rgba(251, 192, 45, 0.3);
+            letter-spacing: 2px;
+        }
 
-        /* Stats & Header */
-        #game-header { display: none; width: 100%; max-width: 400px; flex-direction: column; }
-        .stats-row { display: flex; justify-content: space-between; color: var(--yellow); font-weight: 800; margin-bottom: 8px; }
-        .timer-bar { width: 100%; height: 6px; background: #333; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-        #timer-fill { height: 100%; width: 100%; background: var(--yellow); transition: width 0.1s linear; }
-
-        /* Search List Fixes */
-        .search-container { width: 100%; max-width: 400px; position: relative; margin-top: 10px; }
-        input { width: 100%; padding: 15px 20px; border-radius: 30px; border: 1px solid #333; background: #1a1a1a; color: white; outline: none; box-sizing: border-box; }
-        #artistList { position: absolute; width: 100%; background: #111; border-radius: 15px; margin-top: 10px; z-index: 100; border: 1px solid #333; display: none; overflow: hidden; }
+        /* Stats Header */
+        #game-header { display: none; width: 100%; max-width: 450px; flex-direction: column; }
+        .stats-row { display: flex; justify-content: space-between; color: white; font-weight: 800; margin-bottom: 12px; font-size: 14px; }
+        .stats-row span { background: var(--card-bg); padding: 6px 14px; border-radius: 20px; border: 1px solid #333; }
+        .score-count { color: var(--yellow); }
         
-        .artist-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #222; cursor: pointer; gap: 15px; background: #111; }
-        .artist-item img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
+        /* Smooth Timer Bar */
+        .timer-bar { width: 100%; height: 8px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 25px; border: 1px solid #222; }
+        #timer-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--yellow), #ffeb3b); transition: width 0.1s linear; }
+
+        /* Modern Search Input */
+        .search-container { width: 100%; max-width: 450px; position: relative; margin-top: 20px; }
+        input { width: 100%; padding: 16px 25px; border-radius: 50px; border: 2px solid #222; background: var(--card-bg); color: white; outline: none; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--yellow); box-shadow: 0 0 15px rgba(251, 192, 45, 0.2); }
+        
+        /* Artist Dropdown List */
+        #artistList { position: absolute; width: 100%; background: #11141a; border-radius: 20px; margin-top: 10px; z-index: 100; border: 1px solid #222; display: none; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .artist-item { display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #1f2833; cursor: pointer; gap: 15px; transition: 0.2s; }
+        .artist-item:hover { background: #1f2833; }
+        .artist-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
         .info-col { display: flex; flex-direction: column; flex-grow: 1; }
-        .artist-name { font-weight: bold; font-size: 16px; color: white; }
-        .artist-genre { font-size: 11px; color: var(--yellow); text-transform: uppercase; font-weight: 800; }
-        .status-msg { font-size: 10px; color: #555; margin-top: 2px; }
+        .artist-name { font-weight: bold; font-size: 15px; color: white; }
+        .artist-genre { font-size: 10px; color: var(--yellow); text-transform: uppercase; font-weight: 800; margin-top: 2px; }
+        .status-msg { font-size: 11px; font-weight: bold; margin-top: 2px; }
 
-        /* Organized Grid */
+        /* Game Grid & Cards */
         #game-area { display: none; width: 100%; max-width: 450px; text-align: center; }
-        .song-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; align-items: start; }
-        .song-card { cursor: pointer; width: 100%; }
-        .song-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 4px solid transparent; display: block; box-sizing: border-box; }
-        .song-card p { font-size: 11px; margin-top: 8px; color: #aaa; font-weight: 700; height: 2.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2em; }
+        .song-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; align-items: start; }
         
-        .correct img { border-color: var(--green) !important; }
-        .wrong img { border-color: var(--red) !important; opacity: 0.4; }
-        .reveal img { border-color: var(--green) !important; opacity: 1; }
+        .song-card { cursor: pointer; width: 100%; background: var(--card-bg); padding: 8px; box-sizing: border-box; border-radius: 16px; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
+        .song-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .song-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; display: block; }
+        .song-card p { font-size: 12px; margin: 8px 0 4px 0; color: #fff; font-weight: 600; height: 2.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2em; text-align: center; }
         
-        #playBtn { background: none; border: none; cursor: pointer; margin: 15px 0; }
-        #playBtn svg { width: 70px; height: 70px; fill: var(--yellow); }
-        #feedback { height: 25px; margin-top: 10px; font-weight: 900; color: var(--yellow); }
+        /* Feedback States */
+        .correct { border-color: var(--green) !important; background: rgba(46, 204, 113, 0.1); }
+        .wrong { border-color: var(--red) !important; opacity: 0.3; }
+        .reveal { border-color: var(--green) !important; animation: pulse 1s infinite alternate; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 5px var(--green); } 100% { box-shadow: 0 0 15px var(--green); } }
 
-        #final-screen { display: none; text-align: center; margin-top: 50px; }
-        .final-score { font-size: 80px; font-weight: 900; color: var(--yellow); margin: 20px 0; }
-        .share-btn { background: #25D366; color: white; padding: 18px 40px; border-radius: 40px; border: none; font-weight: 900; font-size: 18px; cursor: pointer; }
+        #playBtn { background: none; border: none; cursor: pointer; margin: 10px 0 20px 0; transition: transform 0.2s; }
+        #playBtn:hover { transform: scale(1.1); }
+        #playBtn svg { width: 75px; height: 75px; fill: var(--yellow); filter: drop-shadow(0 0 8px rgba(251,192,45,0.4)); }
+        
+        #feedback { height: 30px; margin-top: 15px; font-size: 20px; font-weight: 900; letter-spacing: 1px; }
+
+        /* End Screen */
+        #final-screen { display: none; text-align: center; margin-top: 40px; background: var(--card-bg); padding: 30px; border-radius: 24px; border: 1px solid #333; width: 90%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+        .final-score { font-size: 70px; font-weight: 900; color: var(--yellow); margin: 15px 0; text-shadow: 0 0 15px rgba(251,192,45,0.3); }
+        .share-btn { background: #25D366; color: white; padding: 16px 35px; border-radius: 40px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,211,102,0.3); transition: 0.2s; }
+        .share-btn:hover { transform: translateY(-2px); box-sizing: box-shadow; box-shadow: 0 6px 20px rgba(37,211,102,0.5); }
     </style>
 </head>
 <body>
 
     <div class="logo">MZEKNI</div>
 
+    <!-- Stats Header -->
     <div id="game-header">
         <div class="stats-row">
-            <span>ROUND <span id="rNum">1</span>/10</span>
-            <span>SCORE: <span id="sNum">0</span></span>
+            <span>ROUND: <b id="rNum" style="color:var(--yellow)">1</b>/10</span>
+            <span>SCORE: <b id="sNum" class="score-count">0</b></span>
         </div>
         <div class="timer-bar"><div id="timer-fill"></div></div>
     </div>
 
+    <!-- Search Section -->
     <div class="search-container" id="sCont">
-        <input type="text" id="aInp" placeholder="Search singer..." oninput="getArtists()">
+        <input type="text" id="aInp" placeholder="🔍 Search singer / artist..." oninput="debouncedSearch()">
         <div id="artistList"></div>
     </div>
 
+    <!-- Arena Game Section -->
     <div id="game-area">
-        <h1 style="font-size: 28px; font-weight: 900; margin: 10px 0;">GUESS THE SONG!</h1>
+        <h2 style="font-size: 22px; font-weight: 900; margin: 0 0 5px 0; color: #fff;">GUESS THE SONG!</h2>
         <button id="playBtn"><svg id="pIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
         <div id="grid" class="song-grid"></div>
         <div id="feedback"></div>
     </div>
 
+    <!-- Final Result Screen -->
     <div id="final-screen">
-        <h1 style="font-weight: 900;">CHALLENGE OVER</h1>
+        <h1 style="font-weight: 900; margin: 0; font-size: 26px;">CHALLENGE OVER 🏁</h1>
         <div class="final-score" id="fScore">0/10</div>
-        <button class="share-btn" onclick="shareWA()">SHARE ON WHATSAPP</button>
-        <p onclick="location.reload()" style="margin-top:30px; color:#555; cursor:pointer;">Restart</p>
+        <button class="share-btn" onclick="shareWA()">🔥 SHARE ON WHATSAPP</button>
+        <p onclick="location.reload()" style="margin-top:25px; color:#777; cursor:pointer; font-weight: bold; text-decoration: underline;">Play Again</p>
     </div>
 
     <script>
         let pool = [], target = null, r = 1, s = 0, timer, time = 15;
+        let searchTimeout;
         const player = new Audio();
+        
+        // 🎵 Synth Sound Effects (No external files needed)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            }
+        }
+
+        // Debounce to protect API from heavy spamming
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(getArtists, 400);
+        }
 
         async function getArtists() {
             const q = document.getElementById('aInp').value;
-            if (q.length < 2) return;
-            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=musicArtist&limit=6`);
+            if (q.length < 2) { document.getElementById('artistList').style.display = 'none'; return; }
+            
+            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=musicArtist&limit=5`);
             const data = await res.json();
             const list = document.getElementById('artistList');
             list.innerHTML = '';
             
+            if(data.results.length === 0) { list.style.display = 'none'; return; }
+
             data.results.forEach(a => {
                 const div = document.createElement('div');
                 div.className = 'artist-item';
-                const pic = `https://ui-avatars.com/api/?name=${encodeURIComponent(a.artistName)}&background=333&color=fbc02d&bold=true`;
+                const pic = `https://ui-avatars.com/api/?name=${encodeURIComponent(a.artistName)}&background=1f2833&color=fbc02d&bold=true`;
                 
                 div.innerHTML = `
                     <img src="${pic}">
                     <div class="info-col">
                         <span class="artist-name">${a.artistName}</span>
                         <span class="artist-genre">${a.primaryGenreName || 'Artist'}</span>
-                        <span class="status-msg" id="status-${a.artistId}">Checking music...</span>
+                        <span class="status-msg" id="status-${a.artistId}" style="color:#aaa;">Checking music...</span>
                     </div>
                 `;
-                // Verify songs exist before allowing click
                 checkSongs(a.artistId);
                 div.onclick = () => loadGame(a.artistId);
                 list.appendChild(div);
@@ -116,22 +195,25 @@
             const data = await res.json();
             const playable = data.results.filter(x => x.previewUrl).length;
             const msg = document.getElementById(`status-${id}`);
-            if (playable > 0) {
-                msg.innerText = "Music available ✅";
-                msg.style.color = "var(--green)";
-            } else {
-                msg.innerText = "No playable music ❌";
-                msg.style.color = "var(--red)";
+            if (msg) {
+                if (playable > 0) { msg.innerText = "Available ✅"; msg.style.color = "var(--green)"; } 
+                else { msg.innerText = "No Audio ❌"; msg.style.color = "var(--red)"; }
             }
         }
 
         async function loadGame(id) {
             const res = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=100`);
             const data = await res.json();
-            pool = data.results.filter(x => x.previewUrl);
+            // Filter unique tracks by name to avoid duplicate remixes/versions
+            const seen = new Set();
+            pool = data.results.filter(x => {
+                if (!x.previewUrl || seen.has(x.trackName.toLowerCase())) return false;
+                seen.add(x.trackName.toLowerCase());
+                return true;
+            });
             
             if (pool.length < 3) {
-                alert("This artist doesn't have enough playable songs for a game. Try another one!");
+                alert("This artist doesn't have enough songs. Try another one!");
                 return;
             }
 
@@ -142,23 +224,37 @@
         }
 
         function playRound() {
-            if (r > 10) return gameOver();
+            if (r > 10 || pool.length < 3) return gameOver();
             clearInterval(timer);
             player.pause();
-            document.getElementById('feedback').innerText = '';
+            resetPlayButtonIcon();
+            
+            const feed = document.getElementById('feedback');
+            feed.innerText = '';
+            feed.style.color = 'var(--yellow)';
             document.getElementById('rNum').innerText = r;
             
+            // Grid interactive enable
+            const grid = document.getElementById('grid');
+            grid.style.pointerEvents = 'auto';
+            grid.innerHTML = '';
+            
+            // Pick 3 unique choices
             let choices = [...pool].sort(() => 0.5 - Math.random()).slice(0, 3);
             target = choices[Math.floor(Math.random() * 3)];
-            player.src = target.previewUrl;
             
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
+            // Remove target from pool so it NEVER repeats in future rounds
+            pool = pool.filter(track => track.trackId !== target.trackId);
+            
+            player.src = target.previewUrl;
+            // Auto play audio setup
+            player.play().then(updatePlayButtonIcon).catch(() => {});
+
             choices.forEach(track => {
                 const card = document.createElement('div');
                 card.className = 'song-card';
                 card.id = `s-${track.trackId}`;
-                card.innerHTML = `<img src="${track.artworkUrl100.replace('100x100','400x400')}"><p>${track.trackName}</p>`;
+                card.innerHTML = `<img src="${track.artworkUrl100.replace('100x100','300x300')}"><p>${track.trackName}</p>`;
                 card.onclick = () => select(track, card);
                 grid.appendChild(card);
             });
@@ -177,16 +273,26 @@
 
         function select(track, el) {
             clearInterval(timer);
-            if (document.getElementById('feedback').innerText !== '') return;
+            const grid = document.getElementById('grid');
+            grid.style.pointerEvents = 'none'; // Lock grid inputs immediately!
+            
+            const feed = document.getElementById('feedback');
+            
             if (track && track.trackId === target.trackId) {
                 el.classList.add('correct');
                 s++;
-                document.getElementById('feedback').innerText = "CORRECT!";
+                feed.innerText = "✨ CORRECT! +10XP";
+                feed.style.color = "var(--green)";
+                playSound('correct');
             } else {
                 if(el) el.classList.add('wrong');
-                document.getElementById(`s-${target.trackId}`).classList.add('reveal');
-                document.getElementById('feedback').innerText = "WRONG!";
+                const correctCard = document.getElementById(`s-${target.trackId}`);
+                if(correctCard) correctCard.classList.add('reveal');
+                feed.innerText = "💥 WRONG ANSWER";
+                feed.style.color = "var(--red)";
+                playSound('wrong');
             }
+            
             document.getElementById('sNum').innerText = s;
             r++;
             setTimeout(playRound, 2000);
@@ -200,13 +306,20 @@
         }
 
         function shareWA() {
-const url = `https://wa.me/?text=${encodeURIComponent('I got ' + s + '/10 on MZEKNI! Beat me! 🎵 %0A%0A Play Here: mzekni.netlify.app 🔥')}`;
+            const url = `https://wa.me/?text=${encodeURIComponent('I scored ' + s + '/10 on MZEKNI PRO! 🎵 Can you beat me? 🔥\nPlay here: mzekni.netlify.app')}`;
             window.open(url);
         }
 
+        function updatePlayButtonIcon() {
+            document.getElementById('pIcon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        }
+        function resetPlayButtonIcon() {
+            document.getElementById('pIcon').innerHTML = '<path d="M8 5v14l11-7z"/>';
+        }
+
         document.getElementById('playBtn').onclick = () => {
-            if (player.paused) { player.play(); document.getElementById('pIcon').innerHTML='<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; }
-            else { player.pause(); document.getElementById('pIcon').innerHTML='<path d="M8 5v14l11-7z"/>'; }
+            if (player.paused) { player.play(); updatePlayButtonIcon(); }
+            else { player.pause(); resetPlayButtonIcon(); }
         };
     </script>
 </body>
